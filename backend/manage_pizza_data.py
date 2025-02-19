@@ -49,16 +49,24 @@ async def process_update(update):
     else:
         logging.error("⚠️ Bot application not initialized!")
 
+import asyncio
+
 @app.route(f"/{BOT_TOKEN}", methods=["POST"])
 def webhook():
-    """Handle incoming updates from Telegram via webhook."""
+    """Processes incoming Telegram updates."""
     try:
         update = Update.de_json(request.get_json(), application.bot)
-        asyncio.run(process_update(update))
-        return jsonify({"status": "OK"}), 200
+
+        # Run the async function in the existing event loop
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+        loop.run_until_complete(application.process_update(update))
+
+        return "OK", 200
     except Exception as e:
         logging.error(f"⚠️ Webhook processing error: {e}")
-        return jsonify({"error": str(e)}), 500
+        return "Error", 500
+
 
 # === Telegram Bot Commands ===
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -71,6 +79,11 @@ async def set_webhook():
     """Set webhook for Telegram bot."""
     await application.bot.set_webhook(f"{WEBHOOK_URL}/{BOT_TOKEN}")
     logging.info(f"✅ Webhook set to: {WEBHOOK_URL}/{BOT_TOKEN}")
+
+@app.route("/", methods=["GET"])
+def home():
+    """Basic home route to confirm Flask is running."""
+    return "🚀 ChillPizza Backend is Live!", 200
 
 if __name__ == "__main__":
     # Set webhook before starting Flask
