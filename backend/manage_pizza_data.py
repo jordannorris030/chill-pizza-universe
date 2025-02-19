@@ -8,7 +8,8 @@ from telegram import Update
 from telegram.ext import Application, CommandHandler, CallbackQueryHandler, ContextTypes
 
 # === Configuration ===
-BOT_TOKEN = os.getenv("8000732598:AAHzEr6UoAFEW1X5rj2Lqi5kPZ3u3H12SLk")
+import os
+BOT_TOKEN = os.getenv("BOT_TOKEN")
 WEBHOOK_URL = os.getenv("https://chill-pizza-universe.onrender.com/webhook")  # Webhook URL for Render
 SHEET_NAME = "PizzaGamingData"
 
