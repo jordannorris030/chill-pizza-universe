@@ -3,7 +3,7 @@ import logging
 import json
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
-from flask import Flask, request, jsonify
+from flask import Flask, request
 from telegram import Update
 from telegram.ext import Application, CommandHandler, ContextTypes
 import asyncio
@@ -18,7 +18,7 @@ logging.basicConfig(level=logging.INFO)
 
 # === Google Sheets Connection ===
 def get_google_credentials():
-    """Retrieve Google credentials from Render environment variables."""
+    """Retrieve Google credentials from environment variables."""
     credentials_json = os.getenv("GOOGLE_CREDENTIALS")
     if not credentials_json:
         logging.error("❌ GOOGLE_CREDENTIALS not found! Check environment variables.")
@@ -41,32 +41,29 @@ app = Flask(__name__)
 # === Initialize Telegram Bot ===
 application = Application.builder().token(BOT_TOKEN).build()
 
-async def process_update(update):
-    """Process incoming Telegram updates."""
-    if application is not None:
-        await application.initialize()  # ✅ Ensure the bot is initialized before processing updates
-        await application.process_update(update)
-    else:
-        logging.error("⚠️ Bot application not initialized!")
-
-import asyncio
+async def process_update(update: Update):
+    """Process incoming Telegram updates asynchronously."""
+    if not application.ready:
+        logging.info("🔄 Initializing bot application...")
+        await application.initialize()
+    
+    await application.process_update(update)
 
 @app.route(f"/{BOT_TOKEN}", methods=["POST"])
 def webhook():
-    """Processes incoming Telegram updates."""
+    """Processes incoming Telegram updates from Telegram Webhook."""
     try:
         update = Update.de_json(request.get_json(), application.bot)
 
-        # Run the async function in the existing event loop
+        # Run the async function inside the event loop
         loop = asyncio.new_event_loop()
         asyncio.set_event_loop(loop)
-        loop.run_until_complete(application.process_update(update))
+        loop.run_until_complete(process_update(update))
 
         return "OK", 200
     except Exception as e:
         logging.error(f"⚠️ Webhook processing error: {e}")
         return "Error", 500
-
 
 # === Telegram Bot Commands ===
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -86,8 +83,13 @@ def home():
     return "🚀 ChillPizza Backend is Live!", 200
 
 if __name__ == "__main__":
+    logging.info("🚀 Starting ChillPizza Bot Backend...")
+
     # Set webhook before starting Flask
-    asyncio.run(set_webhook())
-    
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+    loop.run_until_complete(set_webhook())
+
     # Start Flask App
     app.run(host="0.0.0.0", port=5000)
+
