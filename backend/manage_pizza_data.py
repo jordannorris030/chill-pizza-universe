@@ -9,7 +9,7 @@ from telegram.ext import Application, CommandHandler, CallbackQueryHandler, Cont
 
 # === Configuration ===
 BOT_TOKEN = os.getenv("8000732598:AAHzEr6UoAFEW1X5rj2Lqi5kPZ3u3H12SLk")
-WEBHOOK_URL = os.getenv("https://dashboard.render.com/web/srv-cuqrtet2ng1s73fa71lg/webhook")  # Webhook URL for Render
+WEBHOOK_URL = os.getenv("https://chill-pizza-universe.onrender.com/webhook")  # Webhook URL for Render
 SHEET_NAME = "PizzaGamingData"
 
 # === Google Sheets Connection ===
