@@ -82,6 +82,18 @@ if __name__ == "__main__":
     # Start Flask App
     app.run(host="0.0.0.0", port=5000)
 
+from telegram import InlineKeyboardButton, InlineKeyboardMarkup
+
+async def launch_game(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Launches the HTML5 game inside Telegram."""
+    game_url = "https://jordannorris030.github.io/ChillPizzaGame/"
+    
+    keyboard = [[InlineKeyboardButton("🎮 Play Now", url=game_url)]]
+    reply_markup = InlineKeyboardMarkup(keyboard)
+
+    await update.message.reply_text("🎮 Tap below to start playing ChillPizza!", reply_markup=reply_markup)
+
+application.add_handler(CommandHandler("game", launch_game))
 
 
 
