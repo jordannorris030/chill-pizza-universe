@@ -4,12 +4,21 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ChillPizza Game</title>
-    <link rel="stylesheet" href="styles.css">
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        body { text-align: center; font-family: Arial, sans-serif; }
+        h1 { color: #ff6600; }
+        button { padding: 10px 20px; font-size: 16px; cursor: pointer; }
+    </style>
 </head>
 <body>
-    <h1>🍕 Welcome to ChillPizza Universe! 🍕</h1>
-    <button id="startGame">Start Baking!</button>
-    <canvas id="gameCanvas"></canvas>
-    <script src="game.js"></script>
+    <h1>🍕 Welcome to ChillPizza! 🍕</h1>
+    <p>Tap the button below to start baking pizzas.</p>
+    <button onclick="startGame()">Start Game</button>
+    <script>
+        function startGame() {
+            Telegram.WebApp.showAlert("Game Started! 🍕 Keep Baking!");
+        }
+    </script>
 </body>
 </html>
