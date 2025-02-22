@@ -42,20 +42,13 @@ app = Flask(__name__)
 application = Application.builder().token(BOT_TOKEN).build()
 
 # ✅ Ensure bot is initialized before processing updates
-async def process_update(update: Update):
-    """Process incoming Telegram updates asynchronously."""
-    if not application.ready:
-        logging.info("🔄 Initializing bot application...")
-        await application.initialize()
-    
-    await application.process_update(update)
-
 @app.route(f"/{BOT_TOKEN}", methods=["POST"])
 async def webhook():
     """Processes incoming Telegram updates from Telegram Webhook."""
     try:
         update = Update.de_json(request.get_json(), application.bot)
-        await process_update(update)  # ✅ Directly call async function inside Flask async view
+        await application.process_update(update)  # ✅ Directly process update
+
         return "OK", 200
     except Exception as e:
         logging.error(f"⚠️ Webhook processing error: {e}")
@@ -86,5 +79,6 @@ if __name__ == "__main__":
 
     # Start Flask App
     app.run(host="0.0.0.0", port=5000)
+
 
 
