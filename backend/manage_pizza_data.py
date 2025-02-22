@@ -45,9 +45,9 @@ async def initialize_application():
     """Ensures the bot application is fully initialized before processing updates."""
     await application.initialize()
     await application.start()
-    logging.info("✅ Telegram Bot Application Initialized & Started")
+    await application.bot.set_webhook(f"{WEBHOOK_URL}/{BOT_TOKEN}")  # ✅ Set Webhook Here
+    logging.info(f"✅ Telegram Bot Application Initialized & Webhook Set: {WEBHOOK_URL}/{BOT_TOKEN}")
 
-# ✅ Ensure bot is initialized before processing updates
 @app.route(f"/{BOT_TOKEN}", methods=["POST"])
 async def webhook():
     """Processes incoming Telegram updates from Telegram Webhook."""
@@ -66,25 +66,22 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 application.add_handler(CommandHandler("start", start))
 
-async def set_webhook():
-    """Set webhook for Telegram bot."""
-    await application.bot.set_webhook(f"{WEBHOOK_URL}/{BOT_TOKEN}")
-    logging.info(f"✅ Webhook set to: {WEBHOOK_URL}/{BOT_TOKEN}")
-
 @app.route("/", methods=["GET"])
 def home():
     """Basic home route to confirm Flask is running."""
     return "🚀 ChillPizza Backend is Live!", 200
 
+# === Start Bot Properly ===
 if __name__ == "__main__":
     logging.info("🚀 Starting ChillPizza Bot Backend...")
 
-    # Run setup tasks before starting Flask
-    asyncio.run(initialize_application())  # ✅ Ensure the bot is properly initialized
-    asyncio.run(set_webhook())  # ✅ Set Webhook
+    loop = asyncio.new_event_loop()  # ✅ Create a new event loop
+    asyncio.set_event_loop(loop)
+    loop.run_until_complete(initialize_application())  # ✅ Run the setup process
 
     # Start Flask App
     app.run(host="0.0.0.0", port=5000)
+
 
 
 
