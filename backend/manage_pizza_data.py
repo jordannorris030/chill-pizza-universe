@@ -3,7 +3,7 @@ import logging
 import json
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
-from flask import Flask, request
+from flask import Flask, request, jsonify
 from telegram import Update
 from telegram.ext import Application, CommandHandler, ContextTypes
 import asyncio
@@ -38,8 +38,14 @@ except Exception as e:
 # === Flask App for Webhooks ===
 app = Flask(__name__)
 
-# === Initialize Telegram Bot ===
+# === Initialize Telegram Bot Application ===
 application = Application.builder().token(BOT_TOKEN).build()
+
+async def initialize_application():
+    """Ensures the bot application is fully initialized before processing updates."""
+    await application.initialize()
+    await application.start()
+    logging.info("✅ Telegram Bot Application Initialized & Started")
 
 # ✅ Ensure bot is initialized before processing updates
 @app.route(f"/{BOT_TOKEN}", methods=["POST"])
@@ -47,8 +53,7 @@ async def webhook():
     """Processes incoming Telegram updates from Telegram Webhook."""
     try:
         update = Update.de_json(request.get_json(), application.bot)
-        await application.process_update(update)  # ✅ Directly process update
-
+        await application.process_update(update)  # ✅ Now processes update properly
         return "OK", 200
     except Exception as e:
         logging.error(f"⚠️ Webhook processing error: {e}")
@@ -74,8 +79,9 @@ def home():
 if __name__ == "__main__":
     logging.info("🚀 Starting ChillPizza Bot Backend...")
 
-    # Set webhook before starting Flask
-    asyncio.run(set_webhook())
+    # Run setup tasks before starting Flask
+    asyncio.run(initialize_application())  # ✅ Ensure the bot is properly initialized
+    asyncio.run(set_webhook())  # ✅ Set Webhook
 
     # Start Flask App
     app.run(host="0.0.0.0", port=5000)
