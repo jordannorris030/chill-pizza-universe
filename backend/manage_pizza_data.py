@@ -4,7 +4,7 @@ import json
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 from flask import Flask, request, jsonify
-from telegram import Update
+from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import Application, CommandHandler, ContextTypes
 import asyncio
 
@@ -12,6 +12,7 @@ import asyncio
 BOT_TOKEN = os.getenv("BOT_TOKEN")
 WEBHOOK_URL = os.getenv("WEBHOOK_URL", "https://chill-pizza-universe.onrender.com")
 SHEET_NAME = "PizzaGamingData"
+GAME_URL = "https://jordannorris030.github.io/ChillPizzaGame/"  # ✅ Update with your game URL
 
 # === Logging Setup ===
 logging.basicConfig(level=logging.INFO)
@@ -62,13 +63,32 @@ async def webhook():
 # === Telegram Bot Commands ===
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Handle /start command."""
-    await update.message.reply_text("🍕 Welcome to ChillPizza! Start playing now!")
+    keyboard = [[InlineKeyboardButton("🎮 Play Game", callback_data="play_game")]]
+    reply_markup = InlineKeyboardMarkup(keyboard)
+    await update.message.reply_text("🍕 Welcome to ChillPizza! Tap below to play!", reply_markup=reply_markup)
 
+async def launch_game(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Launches the HTML5 game inside Telegram."""
+    keyboard = [[InlineKeyboardButton("🎮 Play Now", url=GAME_URL)]]
+    reply_markup = InlineKeyboardMarkup(keyboard)
+    await update.message.reply_text("🎮 Tap below to start playing ChillPizza!", reply_markup=reply_markup)
+
+async def button_click(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Handles button clicks (including Play Game button)."""
+    query = update.callback_query
+    if query.data == "play_game":
+        await launch_game(update, context)
+
+# === Register Commands & Handlers ===
 application.add_handler(CommandHandler("start", start))
+application.add_handler(CommandHandler("game", launch_game))
+application.add_handler(CommandHandler("play", launch_game))  # Alias for /game
+application.add_handler(CommandHandler("menu", start))  # Alias to return to menu
+application.add_handler(CommandHandler("help", start))  # Temporary help command
 
+# === Basic Home Route to Confirm Flask is Running ===
 @app.route("/", methods=["GET"])
 def home():
-    """Basic home route to confirm Flask is running."""
     return "🚀 ChillPizza Backend is Live!", 200
 
 # === Start Bot Properly ===
@@ -82,18 +102,6 @@ if __name__ == "__main__":
     # Start Flask App
     app.run(host="0.0.0.0", port=5000)
 
-from telegram import InlineKeyboardButton, InlineKeyboardMarkup
-
-async def launch_game(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """Launches the HTML5 game inside Telegram."""
-    game_url = "https://jordannorris030.github.io/ChillPizzaGame/"
-    
-    keyboard = [[InlineKeyboardButton("🎮 Play Now", url=game_url)]]
-    reply_markup = InlineKeyboardMarkup(keyboard)
-
-    await update.message.reply_text("🎮 Tap below to start playing ChillPizza!", reply_markup=reply_markup)
-
-application.add_handler(CommandHandler("game", launch_game))
 
 
 
