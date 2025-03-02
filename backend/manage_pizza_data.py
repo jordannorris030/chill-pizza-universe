@@ -67,16 +67,16 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     reply_markup = InlineKeyboardMarkup(keyboard)
     await update.message.reply_text("🍕 Welcome to ChillPizza! Tap below to play!", reply_markup=reply_markup)
 
+from telegram import InlineKeyboardButton, InlineKeyboardMarkup
+
 async def launch_game(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """Launches the HTML5 game inside Telegram."""
-    game_url = "https://jordannorris030.github.io/chill-pizza-universe/"  # Ensure this is correct
+    """Launches the HTML5 game inside Telegram using an inline button."""
+    game_url = "https://jordannorris030.github.io/chill-pizza-universe/"
 
     keyboard = [[InlineKeyboardButton("🎮 Play Game", url=game_url)]]
     reply_markup = InlineKeyboardMarkup(keyboard)
 
     await update.message.reply_text("🎮 Tap below to start playing ChillPizza!", reply_markup=reply_markup)
-
-application.add_handler(CommandHandler("game", launch_game))
 
 async def button_click(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Handles button clicks (including Play Game button)."""
