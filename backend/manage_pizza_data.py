@@ -12,7 +12,7 @@ import asyncio
 BOT_TOKEN = os.getenv("BOT_TOKEN")
 WEBHOOK_URL = os.getenv("WEBHOOK_URL", "https://chill-pizza-universe.onrender.com")
 SHEET_NAME = "PizzaGamingData"
-GAME_SHORT_NAME = "CHILLPIZZAGame"  # ✅ Matches your BotFather registration
+GAME_SHORT_NAME = "CHILLPIZZAGame"  # ✅ Matches what you registered in BotFather
 
 # === Logging Setup ===
 logging.basicConfig(level=logging.INFO)
@@ -70,7 +70,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
 async def launch_game(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Launches the HTML5 game inside Telegram using its short name."""
     try:
-        await update.message.reply_game(CHILLPIZZAGame)  # ✅ Correct way to launch a Telegram game
+        await update.message.reply_game(GAME_SHORT_NAME)  # ✅ Correct way to launch a Telegram game
     except Exception as e:
         logging.error(f"⚠️ Error launching game: {e}")
         await update.message.reply_text("🚨 Game launch failed. Please try again later!")
@@ -99,12 +99,15 @@ if __name__ == "__main__":
 
     loop = asyncio.new_event_loop()  # ✅ Create a new event loop
     asyncio.set_event_loop(loop)
-    loop.run_until_complete(initialize_application())  # ✅ Run the setup process
+
+    # ✅ Run Webhook Initialization inside the loop
+    loop.run_until_complete(initialize_application())
+
+    try:
+        loop.run_forever()  # ✅ Keep the event loop running
+    except KeyboardInterrupt:
+        logging.info("❌ Bot shutting down...")
+        loop.stop()
 
     # Start Flask App
     app.run(host="0.0.0.0", port=5000)
-
-
-
-
-
