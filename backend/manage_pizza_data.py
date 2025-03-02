@@ -109,5 +109,10 @@ if __name__ == "__main__":
         logging.info("❌ Bot shutting down...")
         loop.stop()
 
-    # Start Flask App
-    app.run(host="0.0.0.0", port=5000)
+   import os
+
+PORT = int(os.getenv("PORT", 5000))  # Render dynamically assigns PORT
+
+# Start Flask App with the correct port
+app.run(host="0.0.0.0", port=PORT)
+
