@@ -12,7 +12,7 @@ import asyncio
 BOT_TOKEN = os.getenv("BOT_TOKEN")
 WEBHOOK_URL = os.getenv("WEBHOOK_URL", "https://chill-pizza-universe.onrender.com")
 SHEET_NAME = "PizzaGamingData"
-GAME_URL = "https://jordannorris030.github.io/ChillPizzaGame/"  # ✅ Update with your game URL
+GAME_SHORT_NAME = "CHILLPIZZAGame"  # ✅ Matches your BotFather registration
 
 # === Logging Setup ===
 logging.basicConfig(level=logging.INFO)
@@ -67,16 +67,13 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     reply_markup = InlineKeyboardMarkup(keyboard)
     await update.message.reply_text("🍕 Welcome to ChillPizza! Tap below to play!", reply_markup=reply_markup)
 
-from telegram import InlineKeyboardButton, InlineKeyboardMarkup
-
 async def launch_game(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """Launches the HTML5 game inside Telegram using an inline button."""
-    game_url = "https://jordannorris030.github.io/chill-pizza-universe/"
-
-    keyboard = [[InlineKeyboardButton("🎮 Play Game", url=game_url)]]
-    reply_markup = InlineKeyboardMarkup(keyboard)
-
-    await update.message.reply_text("🎮 Tap below to start playing ChillPizza!", reply_markup=reply_markup)
+    """Launches the HTML5 game inside Telegram using its short name."""
+    try:
+        await update.message.reply_game(CHILLPIZZAGame)  # ✅ Correct way to launch a Telegram game
+    except Exception as e:
+        logging.error(f"⚠️ Error launching game: {e}")
+        await update.message.reply_text("🚨 Game launch failed. Please try again later!")
 
 async def button_click(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Handles button clicks (including Play Game button)."""
@@ -106,6 +103,7 @@ if __name__ == "__main__":
 
     # Start Flask App
     app.run(host="0.0.0.0", port=5000)
+
 
 
 
